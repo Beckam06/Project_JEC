@@ -23,6 +23,7 @@
                         <th>Producto</th>
                         <th>Cantidad</th>
                         <th>Tipo</th>
+                        <th>Receptor</th>
                         <th>Notas</th>
                         <th>Fecha</th>
                     </tr>
@@ -38,6 +39,7 @@
                                 {{ $movement->type }}
                             </span>
                         </td>
+                        <td>{{ $movement->receptor }}</td>
                         <td>{{ $movement->notes ?? 'Sin notas' }}</td>
                         <td>{{ $movement->created_at->format('d/m/Y H:i') }}</td>
                     </tr>

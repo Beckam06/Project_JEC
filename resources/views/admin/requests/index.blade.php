@@ -47,32 +47,71 @@
                     @foreach($requests as $request)
                     <tr>
                         <td>{{ $request->id }}</td>
-                        <td>{{ $request->product->name }}</td>
+                        <td>
+                            @if($request->product)
+                                {{ $request->product->name }}
+                            @else
+                                Nuevo: {{ $request->new_product_name }}
+                            @endif
+                        </td>
                         <td>{{ $request->quantity_requested }}</td>
                         <td>{{ $request->requester_name }}</td>
                         <td>{{ $request->receptor }}</td>
                         <td>
-                            <span class="badge bg-{{ $request->status == 'aprobada' ? 'success' : ($request->status == 'pendiente' ? 'warning' : 'danger') }}">
-                                {{ $request->status }}
+                            <span class="badge bg-{{ match($request->status) {
+                                'pendiente' => 'warning',
+                                'en_revision' => 'info',
+                                'aprobado' => 'success',
+                                'producto_creado' => 'primary',
+                                'rechazado' => 'danger',
+                                default => 'secondary'
+                            } }}">
+                                {{ ucfirst($request->status) }}
                             </span>
                         </td>
                         <td>{{ $request->created_at->format('d/m/Y H:i') }}</td>
                         <td>
                             @if($request->status == 'pendiente')
-                            <form action="{{ route('admin.requests.approve', $request->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar esta solicitud?')">
-                                    <i class="bi bi-check-circle"></i> Aprobar
-                                </button>
-                            </form>
-                            <form action="{{ route('admin.requests.reject', $request->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar esta solicitud?')">
-                                    <i class="bi bi-x-circle"></i> Rechazar
-                                </button>
-                            </form>
+                                <form action="{{ route('admin.requests.review', $request->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> Revisar
+                                    </button>
+                                </form>
+
+                            @elseif($request->status == 'en_revision')
+                                @if($request->is_new_product && !$request->product_id)
+                                    <form action="{{ route('admin.requests.create-product', $request->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('¿Crear este producto en el inventario?')">
+                                            <i class="bi bi-plus-circle"></i> Crear Producto
+                                        </button>
+                                    </form>
+                                @endif
+
+                                <form action="{{ route('admin.requests.approve', $request->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar esta solicitud?')">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.requests.reject', $request->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar esta solicitud?')">
+                                        <i class="bi bi-x-circle"></i> Rechazar
+                                    </button>
+                                </form>
+
+                            @elseif($request->status == 'producto_creado')
+                                <form action="{{ route('admin.requests.approve', $request->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar esta solicitud?')">
+                                        <i class="bi bi-check-circle"></i> Aprobar
+                                    </button>
+                                </form>
+
                             @else
-                            <span class="text-muted">Procesada</span>
+                                <span class="text-muted">Procesada</span>
                             @endif
                         </td>
                     </tr>

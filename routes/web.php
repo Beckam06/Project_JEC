@@ -15,10 +15,12 @@ Route::resource('movements', InventoryMovementController::class);
 // Rutas para administradores (solicitudes)
 Route::prefix('admin')->group(function () {
     Route::get('requests', [ProductRequestController::class, 'index'])->name('admin.requests.index');
+    // AGREGAR ESTA RUTA ↓↓↓
+    Route::post('requests/{id}/review', [ProductRequestController::class, 'markAsReview'])->name('admin.requests.review');
+    // RUTAS EXISTENTES
     Route::post('requests/{id}/approve', [ProductRequestController::class, 'approve'])->name('admin.requests.approve');
     Route::post('requests/{id}/reject', [ProductRequestController::class, 'reject'])->name('admin.requests.reject');
     Route::post('requests/{id}/create-product', [ProductRequestController::class, 'createProductFromRequest'])->name('admin.requests.create-product');
-
 });
 // Rutas para clientes (acceso externo) - SIN LOGIN
 Route::prefix('client')->group(function () {

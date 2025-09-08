@@ -27,7 +27,7 @@
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar py-4">
                 <h4 class="text-center mb-4">
-                    <i class="bi bi-box-seam"></i> InventarioApp
+                    <i class="bi bi-box-seam"></i> Juventud en Camino
                 </h4>
                 <ul class="nav nav-pills flex-column">
                     <li class="nav-item">

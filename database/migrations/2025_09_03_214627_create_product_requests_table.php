@@ -15,7 +15,7 @@ return new class extends Migration
             $table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde']);
             $table->string('requester_name');
             $table->text('purpose')->nullable();
-            $table->enum('status', ['pendiente', 'aprobada', 'rechazada'])->default('pendiente');
+            $table->string('status', 20)->default('pendiente');
             $table->text('notes')->nullable();
             $table->foreignId('processed_by')->nullable()->constrained('users');
             $table->timestamp('processed_at')->nullable();
