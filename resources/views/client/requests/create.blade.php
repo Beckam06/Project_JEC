@@ -85,14 +85,17 @@
             height: 25px;
         }
         
-        .stock-warning {
-            background: linear-gradient(45deg, #ff7675, #fd79a8);
-            color: white;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 10px;
-            display: none;
-        }
+       .stock-warning {
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 10px;
+        display: none;
+        border-left: 4px solid #ff9800;
+        background: linear-gradient(45deg, #fff3e0, #ffecb3);
+        color: #7d6608;
+        font-weight: 500;
+    }
+        
     </style>
 </head>
 <body>
@@ -284,52 +287,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Validación de stock SOLO para productos existentes
-    function validateStock() {
-        // WHY: Solo validamos si NO es producto nuevo
+        function checkStock() {
         if (!toggleSwitch.checked && productSelect.value && quantityInput.value) {
             const selectedOption = productSelect.options[productSelect.selectedIndex];
             const availableStock = parseInt(selectedOption.getAttribute('data-stock'));
             const quantity = parseInt(quantityInput.value);
             
             if (quantity > availableStock) {
-                stockMessage.textContent = `Solo hay ${availableStock} unidades disponibles`;
+                stockMessage.textContent = `⚠️ Advertencia: Solo hay ${availableStock} unidades disponibles. 
+                                          La solicitud será procesada parcialmente.`;
                 stockWarning.style.display = 'block';
-                submitBtn.disabled = true;
-                return false;
+                stockWarning.style.background = 'linear-gradient(45deg, #ff9800, #ff5722)';
             } else {
                 stockWarning.style.display = 'none';
-                submitBtn.disabled = false;
-                return true;
             }
         }
-        // WHY: Para productos nuevos, siempre habilitamos el botón
-        submitBtn.disabled = false;
-        return true;
     }
 
-    // Event listeners SOLO para productos existentes
+    // ✅ SOLO CAMBIAR el nombre de la función en los event listeners
     productSelect.addEventListener('change', function() {
         if (!toggleSwitch.checked) {
-            validateStock();
+            checkStock();  // ← Solo cambió el nombre aquí
         }
     });
 
     quantityInput.addEventListener('input', function() {
         if (!toggleSwitch.checked) {
-            validateStock();
+            checkStock();  // ← Solo cambió el nombre aquí
         }
     });
 
-    // Validación de formulario general
+    // ✅ ELIMINAR la validación de stock del submit
     const form = document.querySelector('.needs-validation');
     form.addEventListener('submit', function(event) {
-        // WHY: Solo validamos stock si es producto existente
-        if (!toggleSwitch.checked && !validateStock()) {
-            event.preventDefault();
-            event.stopPropagation();
-            alert('❌ No puedes solicitar más cantidad de la disponible en stock.');
-        }
-        
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
@@ -337,6 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
         form.classList.add('was-validated');
     }, false);
 });
-</script>
+    </script>
 </body>
 </html>

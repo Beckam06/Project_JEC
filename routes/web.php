@@ -21,7 +21,9 @@ Route::prefix('admin')->group(function () {
     Route::post('requests/{id}/approve', [ProductRequestController::class, 'approve'])->name('admin.requests.approve');
     Route::post('requests/{id}/reject', [ProductRequestController::class, 'reject'])->name('admin.requests.reject');
     Route::post('requests/{id}/create-product', [ProductRequestController::class, 'createProductFromRequest'])->name('admin.requests.create-product');
+     Route::post('requests/{id}/complete', [ProductRequestController::class, 'completePending'])->name('admin.requests.complete');
 });
+
 // Rutas para clientes (acceso externo) - SIN LOGIN
 Route::prefix('client')->group(function () {
     Route::get('solicitud', [ClientRequestController::class, 'create'])->name('client.requests.create');

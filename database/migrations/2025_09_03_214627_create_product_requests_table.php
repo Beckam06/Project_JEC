@@ -15,11 +15,14 @@ return new class extends Migration
             $table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde']);
             $table->string('requester_name');
             $table->text('purpose')->nullable();
-            $table->string('status', 20)->default('pendiente');
-            $table->text('notes')->nullable();
+            $table->string('status', 30)->default('pendiente');
+      
             $table->foreignId('processed_by')->nullable()->constrained('users');
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
+            $table->integer('quantity_approved')->nullable(); // Cantidad aprobada
+            $table->integer('quantity_pending')->nullable();  // Cantidad pendiente
+            $table->text('notes')->nullable();
         });
     }
 

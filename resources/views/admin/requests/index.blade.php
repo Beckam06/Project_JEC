@@ -54,14 +54,22 @@
                                 Nuevo: {{ $request->new_product_name }}
                             @endif
                         </td>
-                        <td>{{ $request->quantity_requested }}</td>
+                        <td>
+                            {{ $request->quantity_requested }}
+                           
+                            @if($request->quantity_pending)
+                                <br><small class="text-warning">Pendiente: {{ $request->quantity_pending }}</small>
+                            @endif
+                        </td>
                         <td>{{ $request->requester_name }}</td>
                         <td>{{ $request->receptor }}</td>
                         <td>
-                            <span class="badge bg-{{ match($request->status) {
+                            <span class="badge bg-{{ match(strtolower($request->status)) {
                                 'pendiente' => 'warning',
                                 'en_revision' => 'info',
                                 'aprobado' => 'success',
+                                'parcialmente_aprobado' => 'primary', // ← ESTADO NUEVO
+                                'completado' => 'success',
                                 'producto_creado' => 'primary',
                                 'rechazado' => 'danger',
                                 default => 'secondary'
@@ -102,6 +110,16 @@
                                     </button>
                                 </form>
 
+                            @elseif(strtolower($request->status) == 'parcialmente_aprobado' && $request->quantity_pending > 0)
+                                <!-- ✅ BOTÓN NUEVO PARA COMPLETAR SOLICITUDES PENDIENTES -->
+                                <form action="{{ route('admin.requests.complete', $request->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" 
+                                            onclick="return confirm('¿Completar las {{ $request->quantity_pending }} unidades pendientes?')">
+                                        <i class="bi bi-check-all"></i> Completar ({{ $request->quantity_pending }})
+                                    </button>
+                                </form>
+
                             @elseif($request->status == 'producto_creado')
                                 <form action="{{ route('admin.requests.approve', $request->id) }}" method="POST" class="d-inline">
                                     @csrf
@@ -119,6 +137,7 @@
                 </tbody>
             </table>
         </div>
+        
         {{ $requests->links() }}
         @else
         <div class="alert alert-info">

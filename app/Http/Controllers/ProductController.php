@@ -7,11 +7,19 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        $products = Product::latest()->paginate(10);
-        return view('products.index', compact('products'));
+   public function index(Request $request)
+{
+    $query = Product::query();
+    
+    // ✅ FILTRO por stock bajo
+    if ($request->has('stock') && $request->stock == 'low') {
+        $query->where('stock', '<', 5);
     }
+    
+    $products = $query->latest()->paginate(10);
+    
+    return view('products.index', compact('products'));
+}
 
     public function create()
     {

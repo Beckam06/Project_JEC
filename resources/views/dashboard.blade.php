@@ -115,14 +115,30 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>Productos con stock bajo</h5>
+    <div class="col-md-3 mb-4">
+    <div class="card card-dashboard bg-warning text-dark">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h5 class="card-title">Stock Bajo</h5>
+                    <h2 class="card-text">{{ $lowStockCount }}</h2>
+                </div>
+                <div>
+                    <i class="bi bi-exclamation-triangle fs-1"></i>
+                </div>
             </div>
-            <div class="card-body">
-                <!-- ... tabla de stock bajo ... -->
+            <div class="mt-2">
+                @if($lowStockCount > 0)
+                <a href="{{ route('products.index') }}?stock=low" class="btn btn-sm btn-light">
+                    <i class="bi bi-eye"></i> Ver Productos
+                </a>
+                @else
+                <span class="badge bg-success">Todo OK</span>
+                @endif
             </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>

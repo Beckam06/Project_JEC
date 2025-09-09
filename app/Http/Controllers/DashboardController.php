@@ -9,26 +9,26 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $totalProducts = Product::count();
-        $totalEntries = InventoryMovement::where('type', 'entrada')->count();
-        $totalOutputs = InventoryMovement::where('type', 'salida')->count();
-        
-        // Obtener los últimos movimientos con la relación del producto
-        $recentMovements = InventoryMovement::with('product')
-            ->latest()
-            ->take(3)
-            ->get();
-            
-        $lowStockProducts = Product::where('stock', '<=', 2)->get();
+   // App/Http/Controllers/DashboardController.php
+// App/Http/Controllers/DashboardController.php
+public function index()
+{
+    $totalProducts = Product::count();
+    $totalEntries = InventoryMovement::where('type', 'entrada')->count();
+    $totalOutputs = InventoryMovement::where('type', 'salida')->count();
+    $pendingRequestsCount = ProductRequest::where('status', 'pendiente')->count();
+    $recentMovements = InventoryMovement::with('product')->latest()->take(5)->get();
+    
+    // ✅ SOLO CONTAR, no traer todos los productos
+    $lowStockCount = Product::where('stock', '<', 5)->count();
 
-        return view('dashboard', compact(
-            'totalProducts', 
-            'totalEntries', 
-            'totalOutputs', 
-            'recentMovements',
-            'lowStockProducts'
-        ));
-    }
+    return view('dashboard', compact(
+        'totalProducts',
+        'totalEntries', 
+        'totalOutputs',
+        'pendingRequestsCount',
+        'recentMovements',
+        'lowStockCount' // ← Solo el conteo
+    ));
+}
 }
