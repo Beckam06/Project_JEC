@@ -56,7 +56,25 @@
                     </div>
                 </div>
                 
+                <!-- ✅ CAMPO RECEPTOR AGREGADO AQUÍ -->
                 <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="receptor" class="form-label">Receptor *</label>
+                        <select class="form-select @error('receptor') is-invalid @enderror" id="receptor" name="receptor" required>
+                            <option value="">Seleccionar receptor</option>
+                            <option value="Casa Amarilla">Casa Amarilla</option>
+                            <option value="Casa Naranja">Casa Naranja</option>
+                            <option value="Casa Verde">Casa Verde</option>
+                        </select>
+                        @error('receptor')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
                     <div class="mb-3">
                         <label for="notes" class="form-label">Notas</label>
                         <input type="text" class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" value="{{ old('notes') }}">

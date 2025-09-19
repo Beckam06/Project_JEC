@@ -132,7 +132,7 @@ class ProductRequestController extends Controller
         return redirect()->back()->with('error', 'Error al aprobar la solicitud.');
     }
 }
-    public function completePending($id)
+   public function completePending($id)
 {
     $productRequest = ProductRequest::findOrFail($id);
     
@@ -156,11 +156,14 @@ class ProductRequestController extends Controller
         $product->stock -= $pendingQuantity;
         $product->save();
         
-        $productRequest->update([
-            'status' => 'completado',
-            'quantity_pending' => 0,
-            'notes' => "Solicitud completada. Todas las unidades entregadas."
-        ]);
+        // ✅ CORREGIDO: Actualizar CORRECTAMENTE los valores
+        $totalApproved = $productRequest->quantity_approved + $pendingQuantity;
+        
+        $productRequest->quantity_approved = $totalApproved;
+        $productRequest->quantity_pending = 0; // ← ¡Poner en CERO!
+        $productRequest->status = 'completado';
+        $productRequest->notes = "Solicitud completada. Total entregado: $totalApproved unidades";
+        $productRequest->save();
         
         return redirect()->back()->with('success', "Solicitud completada. Se entregaron $pendingQuantity unidades pendientes.");
     } else {
@@ -168,6 +171,7 @@ class ProductRequestController extends Controller
             "Aún no hay stock suficiente. Necesitas $pendingQuantity unidades, pero solo hay {$product->stock}."
         );
     }
+
 }
 
    public function reject($id)

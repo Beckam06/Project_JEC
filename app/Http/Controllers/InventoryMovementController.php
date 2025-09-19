@@ -5,14 +5,37 @@ namespace App\Http\Controllers;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\ProductRequest;
 
 class InventoryMovementController extends Controller
 {
-    public function index()
-    {
-        $movements = InventoryMovement::with('product')->latest()->paginate(10);
-        return view('movements.index', compact('movements'));
+    public function index(Request $request)
+{
+    $query = InventoryMovement::with('product')->latest();
+    
+    // Filtro por tipo
+    if ($request->has('type') && $request->type != '') {
+        $query->where('type', $request->type);
     }
+    
+    // Filtro por fechas
+    if ($request->has('start_date') && $request->start_date != '') {
+        $query->whereDate('created_at', '>=', $request->start_date);
+    }
+    
+    if ($request->has('end_date') && $request->end_date != '') {
+        $query->whereDate('created_at', '<=', $request->end_date);
+    }
+    
+    $movements = $query->paginate(10);
+    
+    // Mantener los parámetros de filtro en la paginación
+    if ($request->anyFilled(['type', 'start_date', 'end_date'])) {
+        $movements->appends($request->all());
+    }
+    
+    return view('movements.index', compact('movements'));
+}
 
     public function create()
     {
@@ -26,6 +49,7 @@ class InventoryMovementController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'type' => 'required|in:entrada,salida',
+            'receptor'=> 'required',
             'notes' => 'nullable'
         ]);
 

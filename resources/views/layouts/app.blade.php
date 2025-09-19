@@ -19,6 +19,25 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
+
+        /* Estilos para paginación */
+.pagination-sm .page-link {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.page-link {
+    color: #198754;
+}
+
+.page-link:hover {
+    color: #0f5132;
+}
     </style>
     
 </head>

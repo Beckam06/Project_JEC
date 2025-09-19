@@ -44,9 +44,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($requests as $request)
+                    @php
+                        $startNumber = ($requests->currentPage() - 1) * $requests->perPage() + 1;
+                    @endphp
+                    @foreach($requests as $index => $request)
                     <tr>
-                        <td>{{ $request->id }}</td>
+                        <td>{{ $startNumber + $index }}</td>
                         <td>
                             @if($request->product)
                                 {{ $request->product->name }}
@@ -55,12 +58,13 @@
                             @endif
                         </td>
                         <td>
-                            {{ $request->quantity_requested }}
-                           
-                            @if($request->quantity_pending)
-                                <br><small class="text-warning">Pendiente: {{ $request->quantity_pending }}</small>
-                            @endif
-                        </td>
+    {{ $request->quantity_requested }}
+    
+    {{-- ✅ MOSTRAR SOLO SI HAY PENDIENTE --}}
+    @if($request->quantity_pending && $request->quantity_pending > 0)
+        <br><small class="text-warning">Pendiente: {{ $request->quantity_pending }}</small>
+    @endif
+</td>
                         <td>{{ $request->requester_name }}</td>
                         <td>{{ $request->receptor }}</td>
                         <td>

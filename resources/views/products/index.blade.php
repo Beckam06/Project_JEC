@@ -43,7 +43,7 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Nombre</th>
                         <th>SKU</th>
                         <th>Precio</th>
@@ -53,9 +53,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($products as $product) {{-- ✅ CORREGIDO: $products --}}
+                    @php
+                        $startNumber = ($products->currentPage() - 1) * $products->perPage() + 1;
+                    @endphp
+                    @foreach($products as $index => $product) {{-- ✅ CORREGIDO: $products --}}
                     <tr>
-                        <td>{{ $product->id }}</td>
+                        <td>{{ $startNumber  + $index }}</td>
                         <td>
                             <a href="{{ route('products.show', $product) }}" class="text-decoration-none">
                                 {{ $product->name }}
@@ -120,7 +123,7 @@
                 </span>
                 @endif
             </div>
-            {{ $products->links() }}
+            @include('components.pagination', ['paginator' => $products])
         </div>
         
         @else

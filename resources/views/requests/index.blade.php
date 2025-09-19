@@ -48,6 +48,9 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $startNumber = ($products->currentPage() - 1) * $products->perPage() + 1;
+                    @endphp
                     @foreach($requests as $request)
                     <tr>
                         <td>{{ $request->id }}</td>
