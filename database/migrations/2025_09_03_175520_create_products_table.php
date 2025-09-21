@@ -15,7 +15,7 @@ public function up()
         $table->id();
         $table->string('name');
         $table->text('description')->nullable();
-        $table->decimal('price', 10, 2);
+        $table->decimal('price', 10, 2)->nullable(); 
         $table->integer('stock'); // ← Esta columna debe estar presente
         $table->string('image')->nullable();
         $table->string('sku')->unique();

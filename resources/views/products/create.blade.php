@@ -23,10 +23,16 @@
                     </div>
                 </div>
                 
-                <div class="col-md-6">
+               <div class="col-md-6">
                     <div class="mb-3">
                         <label for="sku" class="form-label">SKU (Código único) *</label>
-                        <input type="text" class="form-control @error('sku') is-invalid @enderror" id="sku" name="sku" value="{{ old('sku') }}" required>
+                        <div class="input-group">
+                            <input type="text" class="form-control @error('sku') is-invalid @enderror" id="sku" name="sku" value="{{ old('sku', $sku) }}" required readonly>
+                            <button type="button" class="btn btn-outline-secondary" onclick="generateNewSku()">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Código generado automáticamente</small>
                         @error('sku')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -45,8 +51,8 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="price" class="form-label">Precio *</label>
-                        <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" required>
+                        <label for="price" class="form-label">Precio </label>
+                        <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" >
                         @error('price')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

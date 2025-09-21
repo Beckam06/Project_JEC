@@ -7,8 +7,12 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductRequest;
 
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 class InventoryMovementController extends Controller
 {
+    
     public function index(Request $request)
 {
     $query = InventoryMovement::with('product')->latest();
@@ -25,6 +29,9 @@ class InventoryMovementController extends Controller
     
     if ($request->has('end_date') && $request->end_date != '') {
         $query->whereDate('created_at', '<=', $request->end_date);
+    }
+    if ($request->has('receptor') && $request->receptor != '') {
+    $query->where('receptor', 'like', '%' . $request->receptor . '%');
     }
     
     $movements = $query->paginate(10);
@@ -45,14 +52,17 @@ class InventoryMovementController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'type' => 'required|in:entrada,salida',
-            'receptor'=> 'required',
-            'notes' => 'nullable'
-        ]);
+       $rules = [
+    'product_id' => 'required|exists:products,id',
+    'quantity' => 'required|integer|min:1',
+    'type' => 'required|in:entrada,salida',
+    'notes' => 'nullable'
+];
 
+// Solo hacer required el receptor si es una SALIDA
+if ($request->type == 'salida') {
+    $rules['receptor'] = 'required';
+};
         // Crear el movimiento
         $movement = InventoryMovement::create($request->all());
         
@@ -68,4 +78,47 @@ class InventoryMovementController extends Controller
         return redirect()->route('movements.index')
             ->with('success', 'Movimiento registrado exitosamente.');
     }
+  
+
+public function generatePDF(Request $request)
+    {
+        // TUS FILTROS EXISTENTES
+        $query = InventoryMovement::with('product')->latest();
+        
+        if ($request->has('type') && $request->type != '') {
+            $query->where('type', $request->type);
+        }
+        
+        if ($request->has('receptor') && $request->receptor != '') {
+            $query->where('receptor', 'like', '%' . $request->receptor . '%');
+        }
+        
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        
+        $movements = $query->get();
+        
+        // GENERAR PDF CON DOMPDF DIRECTO
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Arial');
+        $options->set('isHtml5ParserEnabled', true);
+        
+        $dompdf = new Dompdf($options);
+        
+        $html = view('movements.pdf', compact('movements'))->render();
+        
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        
+        return $dompdf->stream('reporte-movimientos-' . date('Y-m-d') . '.pdf');
+    }
+
+    
 }

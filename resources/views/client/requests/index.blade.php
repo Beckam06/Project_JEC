@@ -45,7 +45,18 @@
                                 <tbody>
                                     @foreach($requests as $request)
                                     <tr>
-                                        <td>{{ $request->product->name }}</td>
+                                        <td>
+                                            {{-- ✅ SOLUCIÓN: Verificar si el producto existe --}}
+                                            @if($request->product)
+                                                {{ $request->product->name }}
+                                            @else
+                                                {{ $request->new_product_name ?? 'Producto solicitado' }}
+                                                <br>
+                                                <small class="text-warning">
+                                                    <i class="bi bi-clock"></i> En proceso de aprobación
+                                                </small>
+                                            @endif
+                                        </td>
                                         <td>{{ $request->quantity_requested }}</td>
                                         <td>{{ $request->receptor }}</td>
                                         <td>

@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\Route;
 // Rutas principales
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('products', ProductController::class);
-Route::resource('movements', InventoryMovementController::class);
+Route::resource('movements', InventoryMovementController::class)->except(['show']);
+//Route::resource('movements', InventoryMovementController::class);
+Route::get('/movements/pdf', [InventoryMovementController::class, 'generatePDF'])->name('movements.pdf');
+
 
 // Rutas para administradores (solicitudes)
 Route::prefix('admin')->group(function () {

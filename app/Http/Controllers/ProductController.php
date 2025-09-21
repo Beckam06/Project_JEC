@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -16,13 +17,25 @@ class ProductController extends Controller
         $query->where('stock', '<', 5);
     }
     
+    // ✅ BÚSQUEDA por nombre
+    if ($request->has('search') && !empty($request->search)) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+    
     $products = $query->latest()->paginate(10);
+    
+    // ✅ CORREGIDO: Mantener parámetros de búsqueda en la paginación
+    if ($request->hasAny(['stock', 'search'])) {
+        $products->appends($request->all());
+    }
     
     return view('products.index', compact('products'));
 }
 
     public function create()
     {
+        $sku = $this->generateUniqueSku();
+        return view('products.create', compact('sku'));
         return view('products.create');
     }
 
@@ -31,7 +44,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|unique:products,sku'
         ]);
@@ -57,7 +70,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'sku' => 'required|unique:products,sku,' . $product->id
         ]);
@@ -74,5 +87,17 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
             ->with('success', 'Producto eliminado exitosamente.');
+    }
+     private function generateUniqueSku()
+    {
+        do {
+            // Generar 5 dígitos aleatorios
+            $sku = strtoupper(Str::random(5));
+            
+            // Verificar si ya existe
+            $exists = Product::where('sku', $sku)->exists();
+        } while ($exists);
+        
+        return $sku;
     }
 }
