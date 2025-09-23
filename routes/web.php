@@ -33,3 +33,7 @@ Route::prefix('client')->group(function () {
     Route::post('solicitud', [ClientRequestController::class, 'store'])->name('client.requests.store');
     Route::get('solicitudes', [ClientRequestController::class, 'index'])->name('client.requests.index');
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
