@@ -132,10 +132,13 @@
                 <i class="bi bi-box-seam"></i> Juventud en Camino
             </span>
             
-            <!-- Botón Home/Volver -->
-            <a href="{{ route('dashboard') }}" class="btn-home-mobile">
-                <i class="bi bi-house"></i>
-            </a>
+            <!-- Botón Logout para móviles -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn-home-mobile">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </form>
         </div>
     </nav>
 
@@ -174,6 +177,16 @@
                             <span class="badge bg-danger float-end">{{ $pendingRequestsCount }}</span>
                             @endif
                         </a>
+                    </li>
+                    
+                    <!-- Botón Logout para desktop -->
+                    <li class="nav-item mt-4">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="nav-link text-danger" onclick="closeSidebar()">
+                                <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>

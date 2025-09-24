@@ -65,6 +65,12 @@
                             <option value="Casa Amarilla" {{ old('receptor') == 'Casa Amarilla' ? 'selected' : '' }}>Casa Amarilla</option>
                             <option value="Casa Naranja" {{ old('receptor') == 'Casa Naranja' ? 'selected' : '' }}>Casa Naranja</option>
                             <option value="Casa Verde" {{ old('receptor') == 'Casa Verde' ? 'selected' : '' }}>Casa Verde</option>
+                            <option value="Casa Amarilla" {{ old('receptor') == 'Estimulacion' ? 'selected' : '' }}>Estimulacion</option>
+                            <option value="Casa Naranja" {{ old('receptor') == 'Clinica' ? 'selected' : '' }}>Clinica </option>
+                            <option value="Casa Verde" {{ old('receptor') == 'Mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
+                             <option value="Casa Verde" {{ old('receptor') == 'Cocina' ? 'selected' : '' }}>Cocina</option>
+                                <option value="Casa Verde" {{ old('receptor') == 'Carpinteria' ? 'selected' : '' }}>Carpinteria</option>
+                                   <option value="Casa Verde" {{ old('receptor') == 'Administracion' ? 'selected' : '' }}>Administracion</option>
                         </select>
                         @error('receptor')
                             <div class="invalid-feedback">{{ $message }}</div>

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('inventory_movements', function (Blueprint $table) {
-            $table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde'])->nullable()->after('notes');
+            $table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde', 'Estimulacion','Clinica', 'Mantenimiento','Cocina', 'Carpinteria', 'Administracion'])->nullable()->after('notes');
         });
     }
 

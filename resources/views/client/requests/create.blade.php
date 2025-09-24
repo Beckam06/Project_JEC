@@ -207,6 +207,12 @@
                                             <option value="Casa Amarilla">🏠 Casa Amarilla</option>
                                             <option value="Casa Naranja">🏠 Casa Naranja</option>
                                             <option value="Casa Verde">🏠 Casa Verde</option>
+                                            <option value="Estimulacion">🏠 Estimulacion</option>
+                                            <option value="Clinica">🏠 Clinica</option>
+                                            <option value="Mantenimiento">🏠 Mantenimiento</option>
+                                            <option value="Cocina">🏠 Cocina</option>
+                                            <option value="Carpinteria">🏠 Carpinteria</option>
+                                            <option value="Administracion">🏠 Administracion</option>
                                         </select>
                                     </div>
                                 </div>

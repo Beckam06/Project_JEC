@@ -11,7 +11,7 @@ class ClientRequestController extends Controller
     public function create()
     {
         $products = Product::all();
-        $casas = ['Casa Amarilla', 'Casa Naranja', 'Casa Verde'];
+        $casas = ['Casa Amarilla', 'Casa Naranja', 'Casa Verde', 'Estimulacion','Clinica', 'Mantenimiento','Cocina', 'Carpinteria', 'Administracion'];
         
         return view('client.requests.create', compact('products', 'casas'));
     }
@@ -24,7 +24,7 @@ class ClientRequestController extends Controller
             'new_product_name' => 'required|string|max:255',
             'new_product_description' => 'required|string',
             'new_product_quantity' => 'required|integer|min:1',
-            'receptor' => 'required|in:Casa Amarilla,Casa Naranja,Casa Verde',
+            'receptor' => 'required|in:Casa Amarilla,Casa Naranja,Casa Verde,Estimulacion,Clinica,Mantenimiento,Cocina,Carpinteria,Administracion',
             'requester_name' => 'required|string|max:255',
             'purpose' => 'required|string|max:500'
         ]);
@@ -49,7 +49,7 @@ class ClientRequestController extends Controller
     $request->validate([
         'product_id' => 'required|exists:products,id',
         'quantity_requested' => 'required|integer|min:1',
-        'receptor' => 'required|in:Casa Amarilla,Casa Naranja,Casa Verde',
+        'receptor' => 'required|in:Casa Amarilla,Casa Naranja,Casa Verde,Estimulacion,Clinica,Mantenimiento,Cocina,Carpinteria,Administracion',
         'requester_name' => 'required|string|max:255',
         'purpose' => 'required|string|max:500'
     ]);
