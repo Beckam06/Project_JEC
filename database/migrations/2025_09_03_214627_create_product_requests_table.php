@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->constrained();
             $table->integer('quantity_requested');
-            $table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde', 'Estimulacion','Clinica', 'Mantenimiento','Cocina', 'Carpinteria', 'Administracion'])->default('Casa Amarilla');
+            //$table->enum('receptor', ['Casa Amarilla', 'Casa Naranja', 'Casa Verde', 'Estimulacion','Clinica', 'Mantenimiento','Cocina', 'Carpinteria', 'Administracion'])->default('Casa Amarilla');
+            $table->string('receptor', 100)->default('Casa Amarilla');
             $table->string('requester_name');
             $table->text('purpose')->nullable();
             $table->string('status', 30)->default('pendiente');

@@ -61,17 +61,23 @@
                     <div class="mb-3" id="receptorField" style="display: none;">
                         <label for="receptor" class="form-label">Receptor *</label>
                         <select class="form-select @error('receptor') is-invalid @enderror" id="receptor" name="receptor">
-                            <option value="">Seleccionar receptor</option>
-                            <option value="Casa Amarilla" {{ old('receptor') == 'Casa Amarilla' ? 'selected' : '' }}>Casa Amarilla</option>
-                            <option value="Casa Naranja" {{ old('receptor') == 'Casa Naranja' ? 'selected' : '' }}>Casa Naranja</option>
-                            <option value="Casa Verde" {{ old('receptor') == 'Casa Verde' ? 'selected' : '' }}>Casa Verde</option>
-                            <option value="Casa Amarilla" {{ old('receptor') == 'Estimulacion' ? 'selected' : '' }}>Estimulacion</option>
-                            <option value="Casa Naranja" {{ old('receptor') == 'Clinica' ? 'selected' : '' }}>Clinica </option>
-                            <option value="Casa Verde" {{ old('receptor') == 'Mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
-                             <option value="Casa Verde" {{ old('receptor') == 'Cocina' ? 'selected' : '' }}>Cocina</option>
-                                <option value="Casa Verde" {{ old('receptor') == 'Carpinteria' ? 'selected' : '' }}>Carpinteria</option>
-                                   <option value="Casa Verde" {{ old('receptor') == 'Administracion' ? 'selected' : '' }}>Administracion</option>
-                        </select>
+                    <option value="">Seleccionar receptor</option>
+                    
+                    <optgroup label="Casas">
+                        <option value="Casa Amarilla" {{ old('receptor') == 'Casa Amarilla' ? 'selected' : '' }}>Casa Amarilla</option>
+                        <option value="Casa Naranja" {{ old('receptor') == 'Casa Naranja' ? 'selected' : '' }}>Casa Naranja</option>
+                        <option value="Casa Verde" {{ old('receptor') == 'Casa Verde' ? 'selected' : '' }}>Casa Verde</option>
+                    </optgroup>
+                    
+                    <optgroup label="Áreas">
+                        <option value="Estimulacion" {{ old('receptor') == 'Estimulacion' ? 'selected' : '' }}>Estimulacion</option>
+                        <option value="Clinica" {{ old('receptor') == 'Clinica' ? 'selected' : '' }}>Clinica</option>
+                        <option value="Mantenimiento" {{ old('receptor') == 'Mantenimiento' ? 'selected' : '' }}>Mantenimiento</option>
+                        <option value="Cocina" {{ old('receptor') == 'Cocina' ? 'selected' : '' }}>Cocina</option>
+                        <option value="Carpinteria" {{ old('receptor') == 'Carpinteria' ? 'selected' : '' }}>Carpinteria</option>
+                        <option value="Administracion" {{ old('receptor') == 'Administracion' ? 'selected' : '' }}>Administracion</option>
+                    </optgroup>
+                </select>
                         @error('receptor')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
