@@ -25,8 +25,8 @@
         }
         
         .login-card {
-            background: rgba(255, 255, 255, 0.1); /* MUY transparente - casi invisible */
-            backdrop-filter: blur(20px); /* Desenfoque fuerte para el efecto glass */
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -35,7 +35,7 @@
         }
         
         .login-header {
-            background: rgba(0, 123, 255, 0.7); /* Semi-transparente */
+            background: rgba(0, 123, 255, 0.7);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -44,7 +44,7 @@
         
         .login-body {
             padding: 2rem;
-            background: rgba(255, 255, 255, 0.05); /* Casi transparente */
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .brand-logo {
@@ -63,7 +63,7 @@
             border-radius: 8px;
             padding: 12px 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.9); /* Inputs más opacos para que se vea el texto */
+            background: rgba(255, 255, 255, 0.9);
             transition: all 0.3s;
         }
         
@@ -87,13 +87,32 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
         
+        /* NUEVO BOTÓN DE SOLICITUDES */
+        .btn-requests {
+            background: linear-gradient(135deg, #ff6b35, #ff8e53);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .btn-requests:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+            color: white;
+            background: linear-gradient(135deg, #e55a2e, #ff7b3a);
+        }
+        
         .input-group-text {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-right: none;
         }
         
-        /* Textos con sombra para mejor legibilidad sobre la imagen */
         .text-white-with-shadow {
             color: white;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -103,6 +122,27 @@
             color: white;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
             font-weight: 600;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .divider-text {
+            padding: 0 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -153,6 +193,21 @@
                         <i class="bi bi-box-arrow-in-right me-2"></i>Acceder al Sistema
                     </button>
                 </form>
+
+                <!-- NUEVO: DIVISOR Y BOTÓN DE SOLICITUDES -->
+                <div class="divider">
+                    <span class="divider-text">O</span>
+                </div>
+
+                <a href="{{ route('client.requests.create') }}" class="btn btn-requests">
+                    <i class="bi bi-clipboard-plus me-2"></i>Realizar Solicitud
+                </a>
+
+                <div class="text-center mt-3">
+                    <small class="text-white-with-shadow opacity-80">
+                        ¿Eres cliente? Realiza tu solicitud sin necesidad de cuenta
+                    </small>
+                </div>
             </div>
         </div>
     </div>
