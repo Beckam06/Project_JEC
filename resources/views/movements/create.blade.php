@@ -45,16 +45,22 @@
                 </div>
             </div>
 
-            <div class="row">
+                    
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="quantity" class="form-label">Cantidad *</label>
-                        <input type="number" class="form-control @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity') }}" min="1" required>
+                        <input type="number" class="form-control @error('quantity') is-invalid @enderror" 
+                            id="quantity" name="quantity" value="{{ old('quantity') }}" 
+                            min="1" required>
+                        <div class="form-text" id="stockInfo">
+                            <!-- Aquí se mostrará la información del stock -->
+                        </div>
                         @error('quantity')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
+           
                 
                 <!-- CAMPO RECEPTOR - SOLO PARA SALIDAS -->
                 <div class="col-md-6">
@@ -106,6 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('type');
     const receptorField = document.getElementById('receptorField');
     const receptorSelect = document.getElementById('receptor');
+    const productSelect = document.getElementById('product_id');
+    const quantityInput = document.getElementById('quantity');
     const form = document.getElementById('movementForm');
 
     // Función para mostrar/ocultar campo receptor
@@ -113,27 +121,108 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeSelect.value === 'salida') {
             receptorField.style.display = 'block';
             receptorSelect.setAttribute('required', 'required');
+            updateMaxQuantity(); // Actualizar max cuando cambia a salida
         } else {
             receptorField.style.display = 'none';
             receptorSelect.removeAttribute('required');
-            receptorSelect.value = ''; // Limpiar el valor cuando no es salida
+            receptorSelect.value = '';
+            quantityInput.removeAttribute('max'); // Quitar límite para entradas
         }
     }
 
-    // Event listener para cambios en el tipo de movimiento
+    // Función para actualizar el máximo permitido según el stock
+    function updateMaxQuantity() {
+        if (typeSelect.value === 'salida' && productSelect.value) {
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const stock = parseInt(selectedOption.getAttribute('data-stock'));
+            
+            // Establecer el máximo como el stock disponible
+            quantityInput.setAttribute('max', stock);
+            quantityInput.setAttribute('title', `Máximo permitido: ${stock} unidades`);
+            
+            // Si la cantidad actual es mayor al stock, ajustarla
+            if (parseInt(quantityInput.value) > stock) {
+                quantityInput.value = stock;
+            }
+        } else {
+            quantityInput.removeAttribute('max');
+            quantityInput.removeAttribute('title');
+        }
+    }
+
+    // Función para validar stock antes de enviar
+    function validateStock() {
+        if (typeSelect.value === 'salida' && productSelect.value) {
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const stock = parseInt(selectedOption.getAttribute('data-stock'));
+            const quantity = parseInt(quantityInput.value);
+            
+            if (quantity > stock) {
+                alert(`❌ Stock insuficiente\n\nSolo hay ${stock} unidades disponibles de "${selectedOption.text}"\nCantidad solicitada: ${quantity}`);
+                quantityInput.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Event listeners
     typeSelect.addEventListener('change', toggleReceptorField);
+    productSelect.addEventListener('change', updateMaxQuantity);
+    quantityInput.addEventListener('input', function() {
+        if (typeSelect.value === 'salida') {
+            updateMaxQuantity();
+        }
+    });
 
     // Validación del formulario
     form.addEventListener('submit', function(e) {
+        // Validar receptor
         if (typeSelect.value === 'salida' && !receptorSelect.value) {
             e.preventDefault();
             alert('Por favor seleccione un receptor para la salida');
             receptorSelect.focus();
+            return;
+        }
+        
+        // Validar stock
+        if (!validateStock()) {
+            e.preventDefault();
+            return;
         }
     });
 
-    // Inicializar el campo al cargar la página
+    // Inicializar
     toggleReceptorField();
+    updateMaxQuantity();
 });
+
+function updateStockInfo() {
+    const stockInfo = document.getElementById('stockInfo');
+    if (typeSelect.value === 'salida' && productSelect.value) {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const stock = parseInt(selectedOption.getAttribute('data-stock'));
+        const quantity = parseInt(quantityInput.value) || 0;
+        
+        if (quantity > stock) {
+            stockInfo.innerHTML = `<span class="text-danger">
+                <i class="bi bi-exclamation-triangle"></i> 
+                Stock insuficiente. Máximo permitido: ${stock} unidades
+            </span>`;
+        } else {
+            stockInfo.innerHTML = `<span class="text-success">
+                <i class="bi bi-check-circle"></i> 
+                Stock disponible: ${stock} unidades
+            </span>`;
+        }
+    } else {
+        stockInfo.innerHTML = '';
+    }
+}
+
+// Agregar este event listener
+quantityInput.addEventListener('input', updateStockInfo);
+productSelect.addEventListener('change', updateStockInfo);
+typeSelect.addEventListener('change', updateStockInfo);
 </script>
 @endsection

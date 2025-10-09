@@ -119,28 +119,36 @@
     </style>
 </head>
 <body>
-    <!-- Navbar Mobile MEJORADO con botón de volver -->
-    <nav class="navbar navbar-light bg-light d-md-none fixed-top navbar-mobile">
-        <div class="navbar-mobile-content">
-            <!-- Botón Hamburguesa -->
-            <button class="navbar-toggler btn-home-mobile" type="button" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
+<!-- Navbar Mobile MEJORADO -->
+<nav class="navbar navbar-light bg-light d-md-none fixed-top navbar-mobile">
+    <div class="navbar-mobile-content">
+        <!-- Botón Hamburguesa -->
+        <button class="navbar-toggler btn-home-mobile" type="button" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        
+        <!-- Título Centrado -->
+        <span class="navbar-mobile-brand">
+            <i class="bi bi-box-seam"></i>Juventud en Camino
+        </span>
+        
+        <!-- Botones de acción derecha -->
+        <div class="d-flex gap-2">
+            <!-- Botón Home -->
+            <a href="{{ route('dashboard') }}" class="btn-home-mobile" title="Ir al Dashboard">
+                <i class="bi bi-house"></i>
+            </a>
             
-            <!-- Título Centrado -->
-            <span class="navbar-mobile-brand">
-                <i class="bi bi-box-seam"></i> Juventud en Camino
-            </span>
-            
-            <!-- Botón Logout para móviles -->
-            <form method="POST" action="{{ route('logout') }}">
+            <!-- Botón Logout -->
+            <form method="POST" action="{{ route('logout') }}" class="d-inline">
                 @csrf
-                <button type="submit" class="btn-home-mobile">
+                <button type="submit" class="btn-home-mobile" title="Cerrar Sesión">
                     <i class="bi bi-box-arrow-right"></i>
                 </button>
             </form>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="container-fluid">
         <div class="row">

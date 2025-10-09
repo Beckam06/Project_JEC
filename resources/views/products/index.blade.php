@@ -123,7 +123,7 @@
                         <td>
                             <span class="badge bg-light text-dark border">{{ $product->sku }}</span>
                         </td>
-                        <td class="fw-semibold">${{ number_format($product->price, 2) }}</td>
+                        <td class="fw-semibold">L{{ number_format($product->price, 2) }}</td>
                         <td>
                             <span class="badge bg-{{ $product->stock > 10 ? 'success' : ($product->stock > 0 ? 'warning' : 'danger') }}">
                                 {{ $product->stock }} unidades

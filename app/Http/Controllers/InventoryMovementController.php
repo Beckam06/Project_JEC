@@ -50,34 +50,54 @@ class InventoryMovementController extends Controller
         return view('movements.create', compact('products'));
     }
 
-    public function store(Request $request)
-    {
-       $rules = [
-    'product_id' => 'required|exists:products,id',
-    'quantity' => 'required|integer|min:1',
-    'type' => 'required|in:entrada,salida',
-    'notes' => 'nullable'
-];
+   public function store(Request $request)
+{
+    $rules = [
+        'product_id' => 'required|exists:products,id',
+        'quantity' => 'required|integer|min:1',
+        'type' => 'required|in:entrada,salida',
+        'notes' => 'nullable'
+    ];
 
-// Solo hacer required el receptor si es una SALIDA
-if ($request->type == 'salida') {
-    $rules['receptor'] = 'required';
-};
-        // Crear el movimiento
-        $movement = InventoryMovement::create($request->all());
+    // Solo hacer required el receptor si es una SALIDA
+    if ($request->type == 'salida') {
+        $rules['receptor'] = 'required';
         
-        // Actualizar el stock del producto
+        // ✅ AGREGAR VALIDACIÓN DE STOCK PARA SALIDAS
         $product = Product::find($request->product_id);
-        if ($request->type == 'entrada') {
-            $product->stock += $request->quantity;
-        } else {
-            $product->stock -= $request->quantity;
+        if ($product) {
+            $rules['quantity'] .= '|max:' . $product->stock;
         }
-        $product->save();
-
-        return redirect()->route('movements.index')
-            ->with('success', 'Movimiento registrado exitosamente.');
     }
+
+    // Validar
+    $request->validate($rules);
+
+    // Validación adicional manual para stock
+    if ($request->type == 'salida') {
+        $product = Product::find($request->product_id);
+        if ($product && $request->quantity > $product->stock) {
+            return back()->withErrors([
+                'quantity' => "Stock insuficiente. Solo hay {$product->stock} unidades disponibles."
+            ])->withInput();
+        }
+    }
+
+    // Crear el movimiento
+    $movement = InventoryMovement::create($request->all());
+    
+    // Actualizar el stock del producto
+    $product = Product::find($request->product_id);
+    if ($request->type == 'entrada') {
+        $product->stock += $request->quantity;
+    } else {
+        $product->stock -= $request->quantity;
+    }
+    $product->save();
+
+    return redirect()->route('movements.index')
+        ->with('success', 'Movimiento registrado exitosamente.');
+}
   
 
 public function generatePDF(Request $request)
