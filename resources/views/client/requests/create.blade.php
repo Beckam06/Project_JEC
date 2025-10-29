@@ -152,7 +152,7 @@
             padding: 10px 0;
         }
         
-        /* Modal */
+        /* Modal bloqueante */
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8) !important;
         }
@@ -180,18 +180,23 @@
             text-align: center;
             letter-spacing: 8px;
         }
+        
+        /* Ocultar mensajes de error por defecto */
+        .invalid-feedback {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
     <!-- Modal de Verificación por PIN -->
-    <div class="modal" id="pinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal fade" id="pinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
                         <i class="bi bi-shield-lock"></i> Verificación de Acceso
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" id="close-modal-btn" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center mb-4">
@@ -273,6 +278,20 @@
                         </div>
                         @endif
 
+                        <!-- Mostrar errores de validación del servidor -->
+                        @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Por favor corrige los siguientes errores:</strong>
+                            <ul class="mb-0 mt-1">
+                                @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        @endif
+
                         <form action="{{ route('client.requests.store') }}" method="POST" class="needs-validation" novalidate id="request-form">
                             @csrf
 
@@ -325,6 +344,9 @@
                                                             </option>
                                                             @endforeach
                                                         </select>
+                                                        <div class="invalid-feedback" id="product_id_error">
+                                                            Por favor selecciona un producto.
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 
@@ -334,6 +356,9 @@
                                                         <input type="number" class="form-control form-control-lg quantity-single" 
                                                                id="quantity_requested" name="quantity_requested" 
                                                                min="1" placeholder="¿Cuántas unidades?">
+                                                        <div class="invalid-feedback" id="quantity_requested_error">
+                                                            Por favor ingresa una cantidad válida.
+                                                        </div>
                                                         <div class="stock-warning" id="stock-warning">
                                                             <i class="bi bi-exclamation-triangle"></i> 
                                                             <span id="stock-message"></span>
@@ -359,10 +384,16 @@
                                                             </option>
                                                             @endforeach
                                                         </select>
+                                                        <div class="invalid-feedback multiple-product-error">
+                                                            Por favor selecciona un producto.
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <input type="number" class="form-control quantity-input" 
                                                                name="multiple_products[0][quantity]" min="1" placeholder="Cantidad" value="1">
+                                                        <div class="invalid-feedback multiple-quantity-error">
+                                                            Por favor ingresa una cantidad válida.
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-2">
                                                         <button type="button" class="btn btn-outline-danger btn-sm remove-product" disabled>
@@ -377,6 +408,9 @@
                                                     <i class="bi bi-plus-circle"></i> Agregar otro producto
                                                 </button>
                                                 <small class="text-muted ms-2">Máximo 10 productos por solicitud</small>
+                                            </div>
+                                            <div class="invalid-feedback" id="multiple-products-error">
+                                                Debes agregar al menos un producto al pedido múltiple.
                                             </div>
                                         </div>
                                     </div>
@@ -395,19 +429,28 @@
                                                 <div class="mb-3">
                                                     <label class="form-label fw-semibold">Nombre del nuevo producto *</label>
                                                     <input type="text" class="form-control form-control-lg" 
-                                                           name="new_product_name" placeholder="Ej: Monitor LED 24'', Sillas ergonómicas, etc.">
+                                                           name="new_product_name" id="new_product_name" placeholder="Ej: Monitor LED 24'', Sillas ergonómicas, etc.">
+                                                    <div class="invalid-feedback" id="new_product_name_error">
+                                                        Por favor ingresa el nombre del nuevo producto.
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Descripción del producto *</label>
-                                            <textarea class="form-control" name="new_product_description" rows="3" 
+                                            <textarea class="form-control" name="new_product_description" id="new_product_description" rows="3" 
                                                       placeholder="Describa las características y uso del producto..."></textarea>
+                                            <div class="invalid-feedback" id="new_product_description_error">
+                                                Por favor ingresa una descripción del producto.
+                                            </div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Cantidad solicitada *</label>
                                             <input type="number" class="form-control form-control-lg" 
-                                                   name="new_product_quantity" min="1" placeholder="¿Cuántas unidades necesita?">
+                                                   name="new_product_quantity" id="new_product_quantity" min="1" placeholder="¿Cuántas unidades necesita?">
+                                            <div class="invalid-feedback" id="new_product_quantity_error">
+                                                Por favor ingresa una cantidad válida.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -425,7 +468,7 @@
                                                     <strong id="current-house-display">Casa no seleccionada</strong>
                                                     <br>
                                                     <small class="text-muted">
-                                                        <a href="javascript:void(0)" onclick="changeHouse()" class="text-decoration-none">
+                                                        <a href="javascript:void(0)" id="change-house-link" class="text-decoration-none">
                                                             <i class="bi bi-arrow-repeat"></i> Cambiar casa
                                                         </a>
                                                     </small>
@@ -434,6 +477,9 @@
                                         </div>
                                         <!-- Campo oculto que se enviará con el formulario -->
                                         <input type="hidden" name="receptor" id="hidden-house-input" required>
+                                        <div class="invalid-feedback" id="receptor_error">
+                                            Debes seleccionar una casa para continuar.
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -441,7 +487,10 @@
                                     <div class="mb-3">
                                         <label class="form-label fw-semibold">¿Quién solicita? *</label>
                                         <input type="text" class="form-control form-control-lg" 
-                                               name="requester_name" placeholder="Tu nombre completo" required>
+                                               name="requester_name" id="requester_name" placeholder="Tu nombre completo" required>
+                                        <div class="invalid-feedback" id="requester_name_error">
+                                            Por favor ingresa tu nombre.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -449,7 +498,7 @@
                             <!-- Propósito -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">¿Para qué lo necesitas? *</label>
-                                <select class="form-select form-select-lg" name="purpose" required>
+                                <select class="form-select form-select-lg" name="purpose" id="purpose" required>
                                     <option value="">Selecciona el propósito</option>
                                     <option value="Uso diario">Uso diario</option>
                                     <option value="Evento especial">Evento especial</option>
@@ -457,6 +506,9 @@
                                     <option value="Nuevo proyecto">Nuevo proyecto</option>
                                     <option value="Otro">Otro</option>
                                 </select>
+                                <div class="invalid-feedback" id="purpose_error">
+                                    Por favor selecciona un propósito.
+                                </div>
                             </div>
 
                             <!-- Botones -->
@@ -486,15 +538,15 @@
         // SISTEMA DE PIN - CONFIGURACIÓN
         // =============================================
         const HOUSE_PINS = {
-            'Casa Amarilla': '1111',
-            'Casa Naranja': '2222', 
-            'Casa Verde': '3333',
-            'Estimulacion': '4444',
-            'Clinica': '5555',
-            'Mantenimiento': '6666',
-            'Cocina': '7777',
-            'Carpinteria': '8888',
-            'Administracion': '9999'
+            'Casa Amarilla': '2648',
+            'Casa Naranja': '1205', 
+            'Casa Verde': '1698',
+            'Estimulacion': '2018',
+            'Clinica': '9867',
+            'Mantenimiento': '4578',
+            'Cocina': '1256',
+            'Carpinteria': '3890',
+            'Administracion': '7902'
         };
 
         let currentHouse = null;
@@ -503,36 +555,31 @@
         const MAX_PRODUCTS = 10;
 
         // =============================================
-        // FUNCIONES PRINCIPALES
+        // FUNCIONES PRINCIPALES DEL SISTEMA DE PIN
         // =============================================
         function initializePinSystem() {
-            const savedHouse = localStorage.getItem('user_house');
-            
-            if (savedHouse) {
-                setCurrentHouse(savedHouse);
-                enableForm();
-            } else {
-                disableForm();
-                // MOSTRAR EL MODAL INMEDIATAMENTE
-                showPinModal();
-            }
-        }
-
-        function showPinModal() {
+            // Crear modal instance
             const modalElement = document.getElementById('pinModal');
             pinModal = new bootstrap.Modal(modalElement, {
                 backdrop: 'static',
                 keyboard: false
             });
-            pinModal.show();
-            document.getElementById('house-select').focus();
+            
+            // SOLO mostrar modal si no hay casa seleccionada
+            if (!currentHouse) {
+                disableForm();
+                pinModal.show();
+                document.getElementById('house-select').focus();
+            } else {
+                enableForm();
+            }
         }
 
         function setCurrentHouse(house) {
             currentHouse = house;
-            localStorage.setItem('user_house', house);
             updateHouseDisplay(house);
             updateIndexLink(house);
+            enableForm();
         }
 
         function updateHouseDisplay(house) {
@@ -569,17 +616,14 @@
             document.getElementById('request-form').classList.remove('disabled-form');
         }
 
-        function changeHouse() {
-            localStorage.removeItem('user_house');
-            currentHouse = null;
+        function openHouseModal() {
+            // Resetear selecciones anteriores
+            document.getElementById('house-select').value = '';
+            document.getElementById('pin-input').value = '';
+            
             disableForm();
-            showPinModal();
-            
-            const houseDisplay = document.getElementById('current-house-display');
-            const hiddenInput = document.getElementById('hidden-house-input');
-            
-            if (houseDisplay) houseDisplay.textContent = 'Casa no seleccionada';
-            if (hiddenInput) hiddenInput.value = '';
+            pinModal.show();
+            document.getElementById('house-select').focus();
         }
 
         function verifyPin() {
@@ -601,8 +645,8 @@
             if (HOUSE_PINS[selectedHouse] === enteredPin) {
                 setCurrentHouse(selectedHouse);
                 pinModal.hide();
-                enableForm();
                 
+                // Mostrar mensaje de confirmación
                 showTempAlert('success', `✅ Acceso concedido a ${selectedHouse}`);
                 return true;
             } else {
@@ -645,11 +689,17 @@
                         </option>
                         @endforeach
                     </select>
+                    <div class="invalid-feedback multiple-product-error">
+                        Por favor selecciona un producto.
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <input type="number" class="form-control quantity-input" 
                            name="multiple_products[${productCounter}][quantity]" min="1" 
                            placeholder="Cantidad" value="1">
+                    <div class="invalid-feedback multiple-quantity-error">
+                        Por favor ingresa una cantidad válida.
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <button type="button" class="btn btn-outline-danger btn-sm remove-product">
@@ -661,10 +711,12 @@
             container.appendChild(newRow);
             productCounter++;
             
+            // Habilitar todos los botones de eliminar
             document.querySelectorAll('.remove-product').forEach(btn => {
                 btn.disabled = false;
             });
 
+            // Agregar event listeners
             newRow.querySelector('.product-select').addEventListener('change', checkMultipleStock);
             newRow.querySelector('.quantity-input').addEventListener('input', checkMultipleStock);
             newRow.querySelector('.remove-product').addEventListener('click', removeProductRow);
@@ -678,10 +730,12 @@
                 row.remove();
                 productCounter--;
                 
+                // Si solo queda una fila, deshabilitar botón de eliminar
                 if (document.querySelectorAll('.product-row').length === 1) {
                     document.querySelector('.remove-product').disabled = true;
                 }
                 
+                // Renumerar los names
                 renumberProductRows();
             }
         }
@@ -736,7 +790,7 @@
         }
 
         // =============================================
-        // SISTEMA DEL FORMULARIO
+        // SISTEMA DEL FORMULARIO Y VALIDACIÓN
         // =============================================
         function checkStock() {
             const productSelect = document.getElementById('product_id');
@@ -762,10 +816,12 @@
         function updateRequiredFields() {
             const activeTab = document.querySelector('.tab-pane.active');
             
+            // Quitar required de todos los campos de productos existentes
             document.querySelectorAll('#existing-product-section [required]').forEach(el => {
                 el.removeAttribute('required');
             });
             
+            // Agregar required solo a la pestaña activa
             if (activeTab && activeTab.id === 'single-product') {
                 const productSelect = document.querySelector('#single-product .product-select-single');
                 const quantityInput = document.querySelector('#single-product .quantity-single');
@@ -775,14 +831,158 @@
         }
 
         // =============================================
+        // VALIDACIÓN COMPLETA DEL FORMULARIO
+        // =============================================
+        function validateForm() {
+            let isValid = true;
+            const isNewProduct = document.getElementById('is_new_product').checked;
+            
+            // Limpiar errores previos
+            clearValidationErrors();
+            
+            // Validar casa seleccionada
+            if (!currentHouse) {
+                showFieldError('hidden-house-input', 'Debes seleccionar una casa para continuar.');
+                isValid = false;
+            }
+            
+            // Validar nombre del solicitante
+            const requesterName = document.getElementById('requester_name').value.trim();
+            if (!requesterName) {
+                showFieldError('requester_name', 'Por favor ingresa tu nombre.');
+                isValid = false;
+            }
+            
+            // Validar propósito
+            const purpose = document.getElementById('purpose').value;
+            if (!purpose) {
+                showFieldError('purpose', 'Por favor selecciona un propósito.');
+                isValid = false;
+            }
+            
+            // Validar según el tipo de producto
+            if (isNewProduct) {
+                // Validar producto nuevo
+                const newProductName = document.getElementById('new_product_name').value.trim();
+                const newProductDescription = document.getElementById('new_product_description').value.trim();
+                const newProductQuantity = document.getElementById('new_product_quantity').value;
+                
+                if (!newProductName) {
+                    showFieldError('new_product_name', 'Por favor ingresa el nombre del nuevo producto.');
+                    isValid = false;
+                }
+                
+                if (!newProductDescription) {
+                    showFieldError('new_product_description', 'Por favor ingresa una descripción del producto.');
+                    isValid = false;
+                }
+                
+                if (!newProductQuantity || newProductQuantity < 1) {
+                    showFieldError('new_product_quantity', 'Por favor ingresa una cantidad válida.');
+                    isValid = false;
+                }
+            } else {
+                // Validar productos existentes
+                const activeTab = document.querySelector('.tab-pane.active');
+                
+                if (activeTab.id === 'single-product') {
+                    // Validar producto individual
+                    const productId = document.getElementById('product_id').value;
+                    const quantityRequested = document.getElementById('quantity_requested').value;
+                    
+                    if (!productId) {
+                        showFieldError('product_id', 'Por favor selecciona un producto.');
+                        isValid = false;
+                    }
+                    
+                    if (!quantityRequested || quantityRequested < 1) {
+                        showFieldError('quantity_requested', 'Por favor ingresa una cantidad válida.');
+                        isValid = false;
+                    }
+                } else if (activeTab.id === 'multiple-products') {
+                    // Validar productos múltiples
+                    const multipleProducts = getMultipleProductsData();
+                    if (multipleProducts.length === 0) {
+                        showFieldError('multiple-products-container', 'Debes agregar al menos un producto al pedido múltiple.');
+                        isValid = false;
+                    } else {
+                        // Validar cada fila de productos múltiples
+                        const rows = document.querySelectorAll('.product-row');
+                        let rowHasErrors = false;
+                        
+                        rows.forEach((row, index) => {
+                            const select = row.querySelector('.product-select');
+                            const quantityInput = row.querySelector('.quantity-input');
+                            
+                            if (!select.value) {
+                                showFieldError(select, 'Por favor selecciona un producto.');
+                                rowHasErrors = true;
+                                isValid = false;
+                            }
+                            
+                            if (!quantityInput.value || quantityInput.value < 1) {
+                                showFieldError(quantityInput, 'Por favor ingresa una cantidad válida.');
+                                rowHasErrors = true;
+                                isValid = false;
+                            }
+                        });
+                    }
+                }
+            }
+            
+            return isValid;
+        }
+
+        function showFieldError(fieldId, message) {
+            let field, errorElement;
+            
+            if (typeof fieldId === 'string') {
+                field = document.getElementById(fieldId);
+                errorElement = document.getElementById(fieldId + '_error');
+            } else {
+                // Si fieldId es un elemento DOM
+                field = fieldId;
+                if (field.classList.contains('product-select')) {
+                    errorElement = field.parentNode.querySelector('.multiple-product-error');
+                } else if (field.classList.contains('quantity-input')) {
+                    errorElement = field.parentNode.querySelector('.multiple-quantity-error');
+                }
+            }
+            
+            if (field) {
+                field.classList.add('is-invalid');
+                if (fieldId === 'multiple-products-container') {
+                    document.getElementById('multiple-products-error').style.display = 'block';
+                }
+            }
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function clearValidationErrors() {
+            // Limpiar clases de error
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            
+            // Ocultar mensajes de error
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // =============================================
         // INICIALIZACIÓN PRINCIPAL
         // =============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // INICIALIZAR SISTEMA DE PIN - ESTO ES LO MÁS IMPORTANTE
-            initializePinSystem();
-            
             // Configurar botón de verificación de PIN
             document.getElementById('verify-pin-btn').addEventListener('click', verifyPin);
+            
+            // Configurar botón para abrir modal manualmente (SOLO EL ENLACE DEL FORMULARIO)
+            document.getElementById('change-house-link').addEventListener('click', openHouseModal);
             
             // Permitir enviar con Enter en el PIN
             document.getElementById('pin-input').addEventListener('keypress', function(e) {
@@ -791,20 +991,17 @@
                 }
             });
 
-            // Manejar cuando se cierra el modal con la X
-            document.getElementById('pinModal').addEventListener('hidden.bs.modal', function() {
-                if (!currentHouse) {
-                    // Si cierran el modal sin seleccionar casa, mantener deshabilitado
-                    disableForm();
-                }
+            // Cuando se cierra el modal con la X
+            document.getElementById('close-modal-btn').addEventListener('click', function() {
+                // Si no hay casa seleccionada, el enlace "Cambiar casa" ya está visible en el formulario
             });
 
             // Validar que tenga casa seleccionada antes de enviar el formulario
             document.getElementById('request-form').addEventListener('submit', function(e) {
-                if (!currentHouse) {
+                if (!validateForm()) {
                     e.preventDefault();
-                    alert('❌ ERROR: No tienes una casa seleccionada');
-                    changeHouse();
+                    // Mostrar alerta general
+                    showTempAlert('danger', '❌ Por favor corrige los errores en el formulario antes de enviar.');
                     return false;
                 }
             });
@@ -816,6 +1013,7 @@
             const existingSection = document.getElementById('existing-product-section');
             const newForm = document.getElementById('new-product-form');
 
+            // Toggle entre formularios
             if (toggleSwitch) {
                 toggleSwitch.addEventListener('change', function() {
                     if (this.checked) {
@@ -832,6 +1030,7 @@
                 });
             }
 
+            // Sistema de pestañas
             const tabTriggers = [document.getElementById('single-tab'), document.getElementById('multiple-tab')];
             tabTriggers.forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -839,11 +1038,14 @@
                 });
             });
 
+            // Validación de stock
             document.getElementById('product_id').addEventListener('change', checkStock);
             document.getElementById('quantity_requested').addEventListener('input', checkStock);
 
+            // Botón agregar producto
             document.getElementById('add-product-btn').addEventListener('click', addProductRow);
 
+            // Event listeners para productos múltiples
             document.querySelectorAll('.remove-product').forEach(btn => {
                 btn.addEventListener('click', removeProductRow);
             });
@@ -856,42 +1058,10 @@
                 input.addEventListener('input', checkMultipleStock);
             });
 
-            const form = document.querySelector('form[action*="store"]');
-            form.addEventListener('submit', function(e) {
-                const isNewProduct = document.getElementById('is_new_product').checked;
-                
-                if (isNewProduct) {
-                    const newProductName = document.querySelector('input[name="new_product_name"]').value;
-                    const newProductQuantity = document.querySelector('input[name="new_product_quantity"]').value;
-                    
-                    if (!newProductName || !newProductQuantity) {
-                        e.preventDefault();
-                        alert('❌ Para producto nuevo, debes completar nombre y cantidad');
-                        return false;
-                    }
-                } else {
-                    const activeTab = document.querySelector('.tab-pane.active');
-                    
-                    if (activeTab.id === 'single-product') {
-                        const productSelect = document.getElementById('product_id');
-                        const quantityInput = document.getElementById('quantity_requested');
-                        
-                        if (!productSelect.value || !quantityInput.value) {
-                            e.preventDefault();
-                            alert('❌ Debes seleccionar un producto y cantidad para el pedido individual');
-                            return false;
-                        }
-                    } else if (activeTab.id === 'multiple-products') {
-                        const multipleProducts = getMultipleProductsData();
-                        if (multipleProducts.length === 0) {
-                            e.preventDefault();
-                            alert('❌ Debes agregar al menos un producto al pedido múltiple');
-                            return false;
-                        }
-                    }
-                }
-            });
-
+            // Inicializar sistema de PIN
+            initializePinSystem();
+            
+            // Inicializar campos required
             updateRequiredFields();
         });
     </script>

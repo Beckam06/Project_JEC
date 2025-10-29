@@ -205,7 +205,7 @@
 
                 <div class="text-center mt-3">
                     <small class="text-white-with-shadow opacity-80">
-                        ¿Eres cliente? Realiza tu solicitud sin necesidad de cuenta
+                        
                     </small>
                 </div>
             </div>

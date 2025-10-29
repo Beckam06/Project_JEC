@@ -129,6 +129,15 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <div class="card-body">
+    <!-- ✅ AGREGAR ESTO AL INICIO para mostrar mensaje de éxito -->
+                        @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        @endif
                         <!-- Alert para cuando no hay casa seleccionada -->
                         <div class="alert alert-info" id="no-house-alert">
                             <i class="bi bi-info-circle"></i> 
@@ -221,17 +230,7 @@
             'Administracion': '9999'
         };
 
-        const PIN_HINTS = {
-            'Casa Amarilla': 'PIN: 1111 (número 1 repetido 4 veces)',
-            'Casa Naranja': 'PIN: 2222 (número 2 repetido 4 veces)',
-            'Casa Verde': 'PIN: 3333 (número 3 repetido 4 veces)',
-            'Estimulacion': 'PIN: 4444 (número 4 repetido 4 veces)',
-            'Clinica': 'PIN: 5555 (número 5 repetido 4 veces)',
-            'Mantenimiento': 'PIN: 6666 (número 6 repetido 4 veces)',
-            'Cocina': 'PIN: 7777 (número 7 repetido 4 veces)',
-            'Carpinteria': 'PIN: 8888 (número 8 repetido 4 veces)',
-            'Administracion': 'PIN: 9999 (número 9 repetido 4 veces)'
-        };
+      
 
         let currentHouse = null;
         let pinModal = null;
@@ -246,19 +245,23 @@
             const urlHouse = urlParams.get('house');
             const savedHouse = localStorage.getItem('user_house');
             
-            if (urlHouse) {
-                setCurrentHouse(urlHouse);
-                enableContent();
-            } else if (savedHouse) {
-                setCurrentHouse(savedHouse);
-                enableContent();
-            } else {
-                disableContent();
-                setTimeout(() => {
-                    pinModal.show();
-                    document.getElementById('house-select').focus();
-                }, 100);
-            }
+         if (urlHouse) {
+    setCurrentHouse(urlHouse);
+    enableContent();
+} else if (savedHouse) {
+    setCurrentHouse(savedHouse);
+    enableContent();
+} else if ("{{ session('house') }}") {
+    // ✅ NUEVO: Si viene de un redirect con casa en sesión
+    setCurrentHouse("{{ session('house') }}");
+    enableContent();
+} else {
+    disableContent();
+    setTimeout(() => {
+        pinModal.show();
+        document.getElementById('house-select').focus();
+    }, 100);
+}
         }
 
         function setCurrentHouse(house) {
