@@ -101,6 +101,7 @@
             background: rgba(255, 255, 255, 0.8);
             border-radius: 8px;
             border-left: 4px solid #4caf50;
+            margin-bottom: 10px;
         }
 
         .remove-product:disabled {
@@ -185,6 +186,133 @@
         .invalid-feedback {
             display: none !important;
         }
+        
+        /* Estilos para el sistema de búsqueda */
+        .searchable-select-container {
+            position: relative;
+        }
+        
+        .searchable-select {
+            width: 100%;
+        }
+        
+        .search-input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .product-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: white;
+            display: none;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        
+        .product-item:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+        }
+        
+        .product-name {
+            flex: 1;
+        }
+        
+        .product-stock {
+            font-size: 0.85rem;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .product-item:hover .product-stock {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .product-stock.low {
+            background: #ffeaa7;
+            color: #e17055;
+        }
+        
+        .product-stock.out {
+            background: #fab1a0;
+            color: #d63031;
+        }
+        
+        .selected-product {
+            background: linear-gradient(45deg, #e8f5e8, #c8e6c9);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-left: 4px solid #4caf50;
+            display: none;
+        }
+        
+        .selected-product-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .change-product-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .change-product-btn:hover {
+            text-decoration: underline;
+        }
+        #close-modal-btn {
+    display: none !important;
+}
     </style>
 </head>
 <body>
@@ -335,15 +463,34 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label class="form-label fw-semibold">Selecciona el producto *</label>
-                                                        <select class="form-select form-select-lg product-select-single" 
-                                                                id="product_id" name="product_id">
-                                                            <option value="">Elige un producto disponible</option>
-                                                            @foreach($products as $product)
-                                                            <option value="{{ $product->id }}" data-stock="{{ $product->stock }}">
-                                                                {{ $product->name }} (Stock: {{ $product->stock }})
-                                                            </option>
-                                                            @endforeach
-                                                        </select>
+                                                        
+                                                        <!-- Sistema de búsqueda para producto individual -->
+                                                        <div class="searchable-select-container">
+                                                            <div class="search-input-container">
+                                                                <input type="text" class="search-input" id="single-product-search" 
+                                                                       placeholder="Escribe el nombre del producto...">
+                                                                <i class="bi bi-search search-icon"></i>
+                                                            </div>
+                                                            
+                                                            <div class="product-list" id="single-product-list">
+                                                                <!-- Los productos se cargarán aquí dinámicamente -->
+                                                            </div>
+                                                            
+                                                            <div class="selected-product" id="single-selected-product">
+                                                                <div class="selected-product-info">
+                                                                    <div>
+                                                                        <strong id="single-selected-name"></strong>
+                                                                        <br>
+                                                                        <small>Stock disponible: <span id="single-selected-stock"></span></small>
+                                                                    </div>
+                                                                    <button type="button" class="change-product-btn" id="single-change-product">
+                                                                        <i class="bi bi-arrow-repeat"></i> Cambiar
+                                                                    </button>
+                                                                </div>
+                                                                <input type="hidden" name="product_id" id="single-product-id">
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <div class="invalid-feedback" id="product_id_error">
                                                             Por favor selecciona un producto.
                                                         </div>
@@ -374,16 +521,33 @@
                                             
                                             <div id="multiple-products-container">
                                                 <!-- Fila inicial de producto -->
-                                                <div class="product-row row g-2 mb-2 align-items-center">
+                                                <div class="product-row row g-2 align-items-center" data-row-index="0">
                                                     <div class="col-md-6">
-                                                        <select class="form-select product-select" name="multiple_products[0][product_id]">
-                                                            <option value="">Selecciona producto</option>
-                                                            @foreach($products as $product)
-                                                            <option value="{{ $product->id }}" data-stock="{{ $product->stock }}">
-                                                                {{ $product->name }} (Stock: {{ $product->stock }})
-                                                            </option>
-                                                            @endforeach
-                                                        </select>
+                                                        <div class="searchable-select-container">
+                                                            <div class="search-input-container">
+                                                                <input type="text" class="search-input multiple-product-search" 
+                                                                       placeholder="Escribe el nombre del producto...">
+                                                                <i class="bi bi-search search-icon"></i>
+                                                            </div>
+                                                            
+                                                            <div class="product-list multiple-product-list">
+                                                                <!-- Los productos se cargarán aquí dinámicamente -->
+                                                            </div>
+                                                            
+                                                            <div class="selected-product multiple-selected-product">
+                                                                <div class="selected-product-info">
+                                                                    <div>
+                                                                        <strong class="multiple-selected-name"></strong>
+                                                                        <br>
+                                                                        <small>Stock: <span class="multiple-selected-stock"></span></small>
+                                                                    </div>
+                                                                    <button type="button" class="change-product-btn multiple-change-product">
+                                                                        <i class="bi bi-arrow-repeat"></i> Cambiar
+                                                                    </button>
+                                                                </div>
+                                                                <input type="hidden" class="multiple-product-id" name="multiple_products[0][product_id]">
+                                                            </div>
+                                                        </div>
                                                         <div class="invalid-feedback multiple-product-error">
                                                             Por favor selecciona un producto.
                                                         </div>
@@ -555,6 +719,174 @@
         const MAX_PRODUCTS = 10;
 
         // =============================================
+        // SISTEMA DE BÚSQUEDA INTUITIVO
+        // =============================================
+        
+        // Datos de productos (simulados - en un caso real vendrían del servidor)
+        const products = [
+            @foreach($products as $product)
+            {
+                id: "{{ $product->id }}",
+                name: "{{ $product->name }}",
+                stock: {{ $product->stock }}
+            },
+            @endforeach
+        ];
+
+        function initializeSearchSystem() {
+            // Configurar búsqueda para producto individual
+            const singleSearchInput = document.getElementById('single-product-search');
+            const singleProductList = document.getElementById('single-product-list');
+            
+            if (singleSearchInput) {
+                singleSearchInput.addEventListener('input', function() {
+                    filterProducts(this.value, singleProductList, 'single');
+                });
+                
+                singleSearchInput.addEventListener('focus', function() {
+                    if (this.value.length > 0) {
+                        filterProducts(this.value, singleProductList, 'single');
+                    } else {
+                        showAllProducts(singleProductList, 'single');
+                    }
+                    singleProductList.style.display = 'block';
+                });
+            }
+            
+            // Configurar botón para cambiar producto individual
+            document.getElementById('single-change-product').addEventListener('click', function() {
+                document.getElementById('single-selected-product').style.display = 'none';
+                singleSearchInput.value = '';
+                singleSearchInput.focus();
+                document.getElementById('single-product-id').value = '';
+            });
+            
+            // Inicializar búsqueda para la fila inicial de productos múltiples
+            initializeMultipleSearch(document.querySelector('[data-row-index="0"]'));
+            
+            // Cerrar lista al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.searchable-select-container')) {
+                    document.querySelectorAll('.product-list').forEach(list => {
+                        list.style.display = 'none';
+                    });
+                }
+            });
+        }
+        
+        function filterProducts(searchTerm, productList, type) {
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            displayProducts(filteredProducts, productList, type);
+        }
+        
+        function showAllProducts(productList, type) {
+            displayProducts(products, productList, type);
+        }
+        
+        function displayProducts(productsToShow, productList, type) {
+            productList.innerHTML = '';
+            
+            if (productsToShow.length === 0) {
+                productList.innerHTML = '<div class="product-item">No se encontraron productos</div>';
+                return;
+            }
+            
+            productsToShow.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'product-item';
+                productItem.innerHTML = `
+                    <span class="product-name">${product.name}</span>
+                    <span class="product-stock ${getStockClass(product.stock)}">${product.stock}</span>
+                `;
+                
+                productItem.addEventListener('click', function() {
+                    selectProduct(product, type, productList);
+                });
+                
+                productList.appendChild(productItem);
+            });
+        }
+        
+        function getStockClass(stock) {
+            if (stock <= 0) return 'out';
+            if (stock < 10) return 'low';
+            return '';
+        }
+        
+        function selectProduct(product, type, productListElement) {
+            if (type === 'single') {
+                // Para producto individual
+                document.getElementById('single-selected-name').textContent = product.name;
+                document.getElementById('single-selected-stock').textContent = product.stock;
+                document.getElementById('single-product-id').value = product.id;
+                document.getElementById('single-selected-product').style.display = 'block';
+                document.getElementById('single-product-list').style.display = 'none';
+                document.getElementById('single-product-search').value = '';
+                
+                // Validar stock
+                checkStock();
+            } else {
+                // Para productos múltiples - encontrar la fila correspondiente
+                const row = productListElement.closest('.product-row');
+                if (row) {
+                    const selectedProduct = row.querySelector('.multiple-selected-product');
+                    const selectedName = row.querySelector('.multiple-selected-name');
+                    const selectedStock = row.querySelector('.multiple-selected-stock');
+                    const productIdInput = row.querySelector('.multiple-product-id');
+                    
+                    selectedName.textContent = product.name;
+                    selectedStock.textContent = product.stock;
+                    productIdInput.value = product.id;
+                    selectedProduct.style.display = 'block';
+                    row.querySelector('.multiple-product-list').style.display = 'none';
+                    row.querySelector('.multiple-product-search').value = '';
+                    
+                    // Validar stock múltiple
+                    checkMultipleStock();
+                }
+            }
+        }
+        
+        // Inicializar búsqueda para nuevas filas de productos múltiples
+        function initializeMultipleSearch(row) {
+            const searchInput = row.querySelector('.multiple-product-search');
+            const productList = row.querySelector('.multiple-product-list');
+            const selectedProduct = row.querySelector('.multiple-selected-product');
+            const changeBtn = row.querySelector('.multiple-change-product');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filterProducts(this.value, productList, 'multiple');
+                });
+                
+                searchInput.addEventListener('focus', function() {
+                    if (this.value.length > 0) {
+                        filterProducts(this.value, productList, 'multiple');
+                    } else {
+                        showAllProducts(productList, 'multiple');
+                    }
+                    productList.style.display = 'block';
+                });
+            }
+            
+            if (changeBtn) {
+                changeBtn.addEventListener('click', function() {
+                    const row = this.closest('.product-row');
+                    const selectedProduct = row.querySelector('.multiple-selected-product');
+                    const searchInput = row.querySelector('.multiple-product-search');
+                    
+                    selectedProduct.style.display = 'none';
+                    searchInput.value = '';
+                    searchInput.focus();
+                    row.querySelector('.multiple-product-id').value = '';
+                });
+            }
+        }
+
+        // =============================================
         // FUNCIONES PRINCIPALES DEL SISTEMA DE PIN
         // =============================================
         function initializePinSystem() {
@@ -678,17 +1010,35 @@
 
             const container = document.getElementById('multiple-products-container');
             const newRow = document.createElement('div');
-            newRow.className = 'product-row row g-2 mb-2 align-items-center';
+            newRow.className = 'product-row row g-2 align-items-center';
+            newRow.setAttribute('data-row-index', productCounter);
             newRow.innerHTML = `
                 <div class="col-md-6">
-                    <select class="form-select product-select" name="multiple_products[${productCounter}][product_id]">
-                        <option value="">Selecciona producto</option>
-                        @foreach($products as $product)
-                        <option value="{{ $product->id }}" data-stock="{{ $product->stock }}">
-                            {{ $product->name }} (Stock: {{ $product->stock }})
-                        </option>
-                        @endforeach
-                    </select>
+                    <div class="searchable-select-container">
+                        <div class="search-input-container">
+                            <input type="text" class="search-input multiple-product-search" 
+                                   placeholder="Escribe el nombre del producto...">
+                            <i class="bi bi-search search-icon"></i>
+                        </div>
+                        
+                        <div class="product-list multiple-product-list">
+                            <!-- Los productos se cargarán aquí dinámicamente -->
+                        </div>
+                        
+                        <div class="selected-product multiple-selected-product">
+                            <div class="selected-product-info">
+                                <div>
+                                    <strong class="multiple-selected-name"></strong>
+                                    <br>
+                                    <small>Stock: <span class="multiple-selected-stock"></span></small>
+                                </div>
+                                <button type="button" class="change-product-btn multiple-change-product">
+                                    <i class="bi bi-arrow-repeat"></i> Cambiar
+                                </button>
+                            </div>
+                            <input type="hidden" class="multiple-product-id" name="multiple_products[${productCounter}][product_id]">
+                        </div>
+                    </div>
                     <div class="invalid-feedback multiple-product-error">
                         Por favor selecciona un producto.
                     </div>
@@ -711,13 +1061,15 @@
             container.appendChild(newRow);
             productCounter++;
             
+            // Inicializar sistema de búsqueda para la nueva fila
+            initializeMultipleSearch(newRow);
+            
             // Habilitar todos los botones de eliminar
             document.querySelectorAll('.remove-product').forEach(btn => {
                 btn.disabled = false;
             });
 
             // Agregar event listeners
-            newRow.querySelector('.product-select').addEventListener('change', checkMultipleStock);
             newRow.querySelector('.quantity-input').addEventListener('input', checkMultipleStock);
             newRow.querySelector('.remove-product').addEventListener('click', removeProductRow);
         }
@@ -743,20 +1095,21 @@
         function checkMultipleStock() {
             const rows = document.querySelectorAll('.product-row');
             rows.forEach(row => {
-                const select = row.querySelector('.product-select');
+                const productIdInput = row.querySelector('.multiple-product-id');
                 const quantityInput = row.querySelector('.quantity-input');
-                const stock = select.options[select.selectedIndex]?.getAttribute('data-stock');
                 
-                if (select.value && quantityInput.value && stock) {
-                    const availableStock = parseInt(stock);
-                    const quantity = parseInt(quantityInput.value);
-                    
-                    if (quantity > availableStock) {
-                        quantityInput.style.borderColor = '#dc3545';
-                        quantityInput.title = `Stock insuficiente. Solo hay ${availableStock} unidades`;
-                    } else {
-                        quantityInput.style.borderColor = '';
-                        quantityInput.title = '';
+                if (productIdInput.value && quantityInput.value) {
+                    const product = products.find(p => p.id == productIdInput.value);
+                    if (product) {
+                        const quantity = parseInt(quantityInput.value);
+                        
+                        if (quantity > product.stock) {
+                            quantityInput.style.borderColor = '#dc3545';
+                            quantityInput.title = `Stock insuficiente. Solo hay ${product.stock} unidades`;
+                        } else {
+                            quantityInput.style.borderColor = '';
+                            quantityInput.title = '';
+                        }
                     }
                 }
             });
@@ -765,10 +1118,10 @@
         function renumberProductRows() {
             const rows = document.querySelectorAll('.product-row');
             rows.forEach((row, index) => {
-                const select = row.querySelector('.product-select');
+                const productIdInput = row.querySelector('.multiple-product-id');
                 const quantityInput = row.querySelector('.quantity-input');
                 
-                select.name = `multiple_products[${index}][product_id]`;
+                productIdInput.name = `multiple_products[${index}][product_id]`;
                 quantityInput.name = `multiple_products[${index}][quantity]`;
             });
         }
@@ -776,12 +1129,12 @@
         function getMultipleProductsData() {
             const products = [];
             document.querySelectorAll('.product-row').forEach(row => {
-                const select = row.querySelector('.product-select');
+                const productIdInput = row.querySelector('.multiple-product-id');
                 const quantityInput = row.querySelector('.quantity-input');
                 
-                if (select.value && quantityInput.value) {
+                if (productIdInput.value && quantityInput.value) {
                     products.push({
-                        product_id: select.value,
+                        product_id: productIdInput.value,
                         quantity: quantityInput.value
                     });
                 }
@@ -793,22 +1146,23 @@
         // SISTEMA DEL FORMULARIO Y VALIDACIÓN
         // =============================================
         function checkStock() {
-            const productSelect = document.getElementById('product_id');
+            const productId = document.getElementById('single-product-id').value;
             const quantityInput = document.getElementById('quantity_requested');
             const stockWarning = document.getElementById('stock-warning');
             const stockMessage = document.getElementById('stock-message');
             
-            if (productSelect.value && quantityInput.value) {
-                const selectedOption = productSelect.options[productSelect.selectedIndex];
-                const availableStock = parseInt(selectedOption.getAttribute('data-stock'));
-                const quantity = parseInt(quantityInput.value);
-                
-                if (quantity > availableStock) {
-                    stockMessage.textContent = `⚠️ Advertencia: Solo hay ${availableStock} unidades disponibles. 
-                                            La solicitud será procesada parcialmente.`;
-                    stockWarning.style.display = 'block';
-                } else {
-                    stockWarning.style.display = 'none';
+            if (productId && quantityInput.value) {
+                const product = products.find(p => p.id == productId);
+                if (product) {
+                    const quantity = parseInt(quantityInput.value);
+                    
+                    if (quantity > product.stock) {
+                        stockMessage.textContent = `⚠️ Advertencia: Solo hay ${product.stock} unidades disponibles. 
+                                                La solicitud será procesada parcialmente.`;
+                        stockWarning.style.display = 'block';
+                    } else {
+                        stockWarning.style.display = 'none';
+                    }
                 }
             }
         }
@@ -823,9 +1177,9 @@
             
             // Agregar required solo a la pestaña activa
             if (activeTab && activeTab.id === 'single-product') {
-                const productSelect = document.querySelector('#single-product .product-select-single');
+                const productIdInput = document.getElementById('single-product-id');
                 const quantityInput = document.querySelector('#single-product .quantity-single');
-                if (productSelect) productSelect.setAttribute('required', 'required');
+                if (productIdInput) productIdInput.setAttribute('required', 'required');
                 if (quantityInput) quantityInput.setAttribute('required', 'required');
             }
         }
@@ -887,11 +1241,11 @@
                 
                 if (activeTab.id === 'single-product') {
                     // Validar producto individual
-                    const productId = document.getElementById('product_id').value;
+                    const productId = document.getElementById('single-product-id').value;
                     const quantityRequested = document.getElementById('quantity_requested').value;
                     
                     if (!productId) {
-                        showFieldError('product_id', 'Por favor selecciona un producto.');
+                        showFieldError('single-product-id', 'Por favor selecciona un producto.');
                         isValid = false;
                     }
                     
@@ -911,11 +1265,11 @@
                         let rowHasErrors = false;
                         
                         rows.forEach((row, index) => {
-                            const select = row.querySelector('.product-select');
+                            const productIdInput = row.querySelector('.multiple-product-id');
                             const quantityInput = row.querySelector('.quantity-input');
                             
-                            if (!select.value) {
-                                showFieldError(select, 'Por favor selecciona un producto.');
+                            if (!productIdInput.value) {
+                                showFieldError(productIdInput, 'Por favor selecciona un producto.');
                                 rowHasErrors = true;
                                 isValid = false;
                             }
@@ -942,8 +1296,8 @@
             } else {
                 // Si fieldId es un elemento DOM
                 field = fieldId;
-                if (field.classList.contains('product-select')) {
-                    errorElement = field.parentNode.querySelector('.multiple-product-error');
+                if (field.classList.contains('multiple-product-id')) {
+                    errorElement = field.closest('.col-md-6').querySelector('.multiple-product-error');
                 } else if (field.classList.contains('quantity-input')) {
                     errorElement = field.parentNode.querySelector('.multiple-quantity-error');
                 }
@@ -1039,7 +1393,6 @@
             });
 
             // Validación de stock
-            document.getElementById('product_id').addEventListener('change', checkStock);
             document.getElementById('quantity_requested').addEventListener('input', checkStock);
 
             // Botón agregar producto
@@ -1050,14 +1403,13 @@
                 btn.addEventListener('click', removeProductRow);
             });
             
-            document.querySelectorAll('.product-select').forEach(select => {
-                select.addEventListener('change', checkMultipleStock);
-            });
-            
             document.querySelectorAll('.quantity-input').forEach(input => {
                 input.addEventListener('input', checkMultipleStock);
             });
 
+            // Inicializar sistema de búsqueda
+            initializeSearchSystem();
+            
             // Inicializar sistema de PIN
             initializePinSystem();
             
