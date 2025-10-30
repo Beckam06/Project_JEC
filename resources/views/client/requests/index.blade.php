@@ -219,15 +219,15 @@
         // SISTEMA DE PIN - MISMOS CÓDIGOS QUE CREATE
         // =============================================
         const HOUSE_PINS = {
-            'Casa Amarilla': '1111',
-            'Casa Naranja': '2222', 
-            'Casa Verde': '3333',
-            'Estimulacion': '4444',
-            'Clinica': '5555',
-            'Mantenimiento': '6666',
-            'Cocina': '7777',
-            'Carpinteria': '8888',
-            'Administracion': '9999'
+            'Casa Amarilla': '2648',
+            'Casa Naranja': '1205', 
+            'Casa Verde': '1698',
+            'Estimulacion': '2018',
+            'Clinica': '9867',
+            'Mantenimiento': '4578',
+            'Cocina': '1256',
+            'Carpinteria': '3890',
+            'Administracion': '7902'
         };
 
       
