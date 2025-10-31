@@ -14,7 +14,7 @@
     </div>
 </div>
 
-@if(session('success'))
+ @if(session('success'))
 <div class="alert alert-success alert-dismissible fade show" role="alert">
     <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -26,7 +26,7 @@
     <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-@endif
+@endif 
 
 <!-- Tarjeta con nuevo diseño -->
 <div class="card border-0 shadow-sm">
@@ -148,13 +148,8 @@
             </table>
         </div>
         
-        <!-- Paginación con el mismo estilo -->
-        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-            <div class="text-muted small">
-                Mostrando {{ $requests->count() }} de {{ $requests->total() }} solicitudes
-            </div>
-            {{ $requests->links() }}
-        </div>
+      {{-- Paginación --}}
+@include('components.pagination', ['paginator' => $requests])
         
         @else
         <div class="text-center py-5">

@@ -44,12 +44,21 @@ class InventoryMovementController extends Controller
     return view('movements.index', compact('movements'));
 }
 
-    public function create()
-    {
-        $products = Product::all();
-        return view('movements.create', compact('products'));
+ public function create(Request $request)
+{
+    $product = null;
+    $type = $request->get('type', 'entrada');
+    
+    // Si se pasa un producto ID, cargarlo (para "Añadir Stock")
+    if ($request->has('product')) {
+        $product = Product::find($request->get('product'));
+        $type = 'entrada'; // Forzar entrada cuando viene de "Añadir Stock"
     }
-
+    
+    $products = Product::all();
+    
+    return view('movements.create', compact('products', 'product', 'type'));
+}
    public function store(Request $request)
 {
     $rules = [

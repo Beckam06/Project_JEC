@@ -45,6 +45,31 @@
             text-align: center;
             letter-spacing: 8px;
         }
+        
+        .pagination-custom .page-link {
+            border-radius: 10px;
+            margin: 0 3px;
+            border: none;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .pagination-custom .page-item.active .page-link {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border: none;
+        }
+        
+        .pagination-custom .page-link:hover {
+            background-color: #e9ecef;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -129,8 +154,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="card-body">
-    <!-- ✅ AGREGAR ESTO AL INICIO para mostrar mensaje de éxito -->
+                        <!-- ✅ AGREGAR ESTO AL INICIO para mostrar mensaje de éxito -->
                         @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i>
@@ -138,6 +162,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         @endif
+                        
                         <!-- Alert para cuando no hay casa seleccionada -->
                         <div class="alert alert-info" id="no-house-alert">
                             <i class="bi bi-info-circle"></i> 
@@ -175,9 +200,32 @@
                                         <td>{{ $request->requester_name }}</td>
                                         <td>{{ $request->purpose }}</td>
                                         <td>
-                                            <span class="badge bg-{{ $request->status == 'aprobada' ? 'success' : ($request->status == 'pendiente' ? 'warning' : 'danger') }}">
-                                                {{ ucfirst($request->status) }}
-                                            </span>
+                                       @php
+    $badgeColor = 'secondary'; // color por defecto
+    
+    switch($request->status) {
+        case 'aprobado':
+            $badgeColor = 'success';
+            break;
+        case 'pendiente':
+            $badgeColor = 'warning';
+            break;
+        case 'rechazado':
+        case 'rechazada':
+            $badgeColor = 'danger';
+            break;
+        case 'parcialmente_aprobado':
+            $badgeColor = 'info';
+            break;
+        case 'completado':
+            $badgeColor = 'primary';
+            break;
+    }
+@endphp
+
+<span class="badge bg-{{ $badgeColor }}">
+    {{ ucfirst($request->status) }}
+</span>
                                         </td>
                                         <td>{{ $request->created_at->format('d/m/Y H:i') }}</td>
                                     </tr>
@@ -185,6 +233,69 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- ✅ PAGINACIÓN BONITA -->
+                        @if($requests->hasPages())
+                        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
+                            <div class="pagination-info mb-2 mb-md-0">
+                                Mostrando {{ $requests->firstItem() }} - {{ $requests->lastItem() }} de {{ $requests->total() }} solicitudes
+                            </div>
+                            
+                            <nav aria-label="Paginación de solicitudes">
+                                <ul class="pagination pagination-custom mb-0">
+                                    <!-- Enlace anterior -->
+                                    @if($requests->onFirstPage())
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                <i class="bi bi-chevron-left"></i> Anterior
+                                            </span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" aria-label="Anterior">
+                                                <i class="bi bi-chevron-left"></i> Anterior
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    <!-- Números de página -->
+                                    @foreach($requests->getUrlRange(1, $requests->lastPage()) as $page => $url)
+                                        @if($page == $requests->currentPage())
+                                            <li class="page-item active" aria-current="page">
+                                                <span class="page-link">{{ $page }}</span>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+
+                                    <!-- Enlace siguiente -->
+                                    @if($requests->hasMorePages())
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" aria-label="Siguiente">
+                                                Siguiente <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    @else
+                                        <li class="page-item disabled">
+                                            <span class="page-link">
+                                                Siguiente <i class="bi bi-chevron-right"></i>
+                                            </span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </nav>
+                        </div>
+                        @else
+                        <div class="text-center mt-3">
+                            <span class="pagination-info">
+                                Total: {{ $requests->total() }} solicitudes
+                            </span>
+                        </div>
+                        @endif
+
                         @else
                         <div class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 4rem; color: #6c757d;"></i>
@@ -201,7 +312,7 @@
                                 <i class="bi bi-arrow-left"></i> Volver al formulario
                             </a>
                             
-                            @if($requests->count() > 0)
+                            @if($requests->count() > 0 && !$requests->hasPages())
                             <span class="text-muted">
                                 Mostrando {{ $requests->count() }} solicitudes
                             </span>
@@ -230,7 +341,17 @@
             'Administracion': '7902'
         };
 
-      
+        const PIN_HINTS = {
+            'Casa Amarilla': 'PIN: 2648',
+            'Casa Naranja': 'PIN: 1205',
+            'Casa Verde': 'PIN: 1698',
+            'Estimulacion': 'PIN: 2018',
+            'Clinica': 'PIN: 9867',
+            'Mantenimiento': 'PIN: 4578',
+            'Cocina': 'PIN: 1256',
+            'Carpinteria': 'PIN: 3890',
+            'Administracion': 'PIN: 7902'
+        };
 
         let currentHouse = null;
         let pinModal = null;
@@ -245,23 +366,22 @@
             const urlHouse = urlParams.get('house');
             const savedHouse = localStorage.getItem('user_house');
             
-         if (urlHouse) {
-    setCurrentHouse(urlHouse);
-    enableContent();
-} else if (savedHouse) {
-    setCurrentHouse(savedHouse);
-    enableContent();
-} else if ("{{ session('house') }}") {
-    // ✅ NUEVO: Si viene de un redirect con casa en sesión
-    setCurrentHouse("{{ session('house') }}");
-    enableContent();
-} else {
-    disableContent();
-    setTimeout(() => {
-        pinModal.show();
-        document.getElementById('house-select').focus();
-    }, 100);
-}
+            if (urlHouse) {
+                setCurrentHouse(urlHouse);
+                enableContent();
+            } else if (savedHouse) {
+                setCurrentHouse(savedHouse);
+                enableContent();
+            } else if ("{{ session('house') }}") {
+                setCurrentHouse("{{ session('house') }}");
+                enableContent();
+            } else {
+                disableContent();
+                setTimeout(() => {
+                    pinModal.show();
+                    document.getElementById('house-select').focus();
+                }, 100);
+            }
         }
 
         function setCurrentHouse(house) {

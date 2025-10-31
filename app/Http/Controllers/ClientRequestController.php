@@ -129,7 +129,8 @@ public function index(Request $request)
         $requests = ProductRequest::with('product')
             ->where('receptor', $selectedHouse)
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
     }
 
     return view('client.requests.index', compact('requests', 'selectedHouse'));

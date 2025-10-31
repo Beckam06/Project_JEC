@@ -11,13 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 class ProductRequestController extends Controller
 {
-    public function index()
-    {
-        // Ahora podemos usar los modelos directamente sin \
-        $requests = ProductRequest::with('product')->latest()->paginate(10);
-        return view('admin.requests.index', compact('requests'));
+ public function index(Request $request)
+{
+    $requests = ProductRequest::with('product')->latest()->paginate(10);
+    
+    // ✅ CORREGIDO: Mantener parámetros en la paginación
+    if ($request->hasAny(['page'])) {
+        $requests->appends($request->all());
     }
-
+    
+    return view('admin.requests.index', compact('requests'));
+}
   public function approve($id)
 {
     DB::beginTransaction();

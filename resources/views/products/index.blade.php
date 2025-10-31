@@ -146,8 +146,8 @@
                                 <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-outline-primary" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ route('movements.create', ['product_id' => $product->id, 'type' => 'entrada']) }}" 
-                                   class="btn btn-sm btn-outline-success" title="Añadir Stock">
+                                    <a href="{{ route('movements.create', ['product' => $product->id]) }}" 
+                                class="btn btn-sm btn-outline-success" title="Añadir Stock">
                                     <i class="bi bi-plus-lg"></i>
                                 </a>
                                 <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline">
